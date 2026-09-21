@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tools for Chemistry – Practice</title>
+<style>
+:root{
+  --paper:#fffdf8; --card:#ffffff; --ink:#1f1b14; --muted:#645b4b; --line:#ece2cc;
+  --purple:#8a5d00; --bar:#F5C45A; --lilac:#F5C45A; --lilac-soft:#fdf3dc; --on-accent:#2a2110;
+  --ok:#23804e; --ok-soft:#e5f4ec; --mid:#2b7a9b; --mid-soft:#e2f1f7; --bad:#b83a2e; --bad-soft:#fbe9e7;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#18150f; --card:#221e16; --ink:#f3efe6; --muted:#bdb4a2; --line:#3d3526;
+  --purple:#F5C45A; --bar:#F5C45A; --lilac:#F5C45A; --lilac-soft:#3a2f14; --on-accent:#2a2110;
+  --ok:#6fd39c; --ok-soft:#1b3326; --mid:#6cc3e6; --mid-soft:#14303b; --bad:#f08a7e; --bad-soft:#3a201d;}}
+:root[data-theme="dark"]{
+  --paper:#18150f; --card:#221e16; --ink:#f3efe6; --muted:#bdb4a2; --line:#3d3526;
+  --purple:#F5C45A; --bar:#F5C45A; --lilac:#F5C45A; --lilac-soft:#3a2f14; --on-accent:#2a2110;
+  --ok:#6fd39c; --ok-soft:#1b3326; --mid:#6cc3e6; --mid-soft:#14303b; --bad:#f08a7e; --bad-soft:#3a201d;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif;font-size:19px;line-height:1.5}
+.shell{display:flex;min-height:100vh}
+.rail{flex:none;width:14px;background:var(--bar)}
+main{flex:1;max-width:780px;margin:0 auto;padding:28px 20px 72px}
+h1{font-size:40px;line-height:1.1;font-weight:400;color:var(--purple);margin:0 0 6px}
+h2{font-size:26px;line-height:1.25;margin:0 0 14px}
+h3{font-size:22px;margin:30px 0 10px;color:var(--purple);font-weight:700}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:22px}
+.link{background:none;border:none;color:var(--purple);font:inherit;font-weight:700;cursor:pointer;padding:6px 0}
+button.main{font:inherit;font-weight:700;border-radius:10px;padding:11px 18px;cursor:pointer;border:2px solid var(--purple)}
+.solid{background:var(--lilac);color:var(--on-accent);border-color:var(--lilac)!important}
+.ghost{background:transparent;color:var(--purple)}
+button.main:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--lilac);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.overall{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:30px;line-height:1.1;color:var(--purple)}
+.topic{display:grid;grid-template-columns:1fr auto;gap:6px 16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.topic .name{font-weight:700}
+.topic .meta{grid-column:1;font-size:16px;color:var(--muted)}
+.topic .go{grid-row:1 / span 3;grid-column:2}
+.track{grid-column:1;height:10px;border-radius:5px;background:var(--line);overflow:hidden;display:flex}
+.track i{display:block;height:100%}
+.track .c{background:var(--ok)} .track .p{background:var(--mid)} .track .w{background:var(--bad)}
+.progress{display:flex;gap:3px;margin:0 0 18px}
+.progress span{flex:1;height:7px;border-radius:4px;background:var(--line)}
+.progress .c{background:var(--ok)} .progress .p{background:var(--mid)} .progress .w{background:var(--bad)} .progress .now{background:var(--lilac)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+.tag{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:16px;margin-bottom:8px}
+.tag b{color:var(--purple)}
+.q{font-size:21px;line-height:1.4;margin:0 0 16px}
+.opts{display:grid;gap:9px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:inherit;background:transparent;border:2px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--lilac)}
+.opt .k{flex:none;min-width:28px;height:28px;border-radius:14px;display:grid;place-items:center;font-weight:700;background:var(--lilac-soft);color:var(--purple);padding:0 6px}
+.opt.sel{border-color:var(--lilac);background:var(--lilac-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.missed{border-color:var(--ok);border-style:dashed}
+.opt:disabled{cursor:default}
+.hint{font-size:16px;color:var(--muted);margin:-6px 0 12px}
+.num{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:10px 12px}
+input[type=text]{width:220px}
+input.formula{width:100%;font-family:Consolas,"Courier New",monospace}
+textarea{width:100%;min-height:96px;resize:vertical}
+.seq{display:flex;flex-wrap:wrap;gap:8px;min-height:48px;padding:8px;border:2px dashed var(--line);border-radius:10px;margin:0 0 12px}
+.chip{background:var(--lilac-soft);color:var(--purple);font-weight:700;border-radius:8px;padding:4px 10px}
+.conf{margin-top:18px}
+.conf p{color:var(--muted);margin-bottom:8px}
+.fb{margin-top:18px;padding:14px 16px;border-radius:10px;border-left:6px solid}
+.fb.c{background:var(--ok-soft);border-color:var(--ok)} .fb.p{background:var(--mid-soft);border-color:var(--mid)} .fb.w{background:var(--bad-soft);border-color:var(--bad)} .fb.m{background:var(--lilac-soft);border-color:var(--lilac)}
+.fb strong{display:block;margin-bottom:4px}
+.next{margin-top:16px;display:flex;justify-content:flex-end}
+figure{margin:0 0 16px}
+figure svg{max-width:100%;height:auto;display:block}
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 22px}
+.cell{border-radius:12px;padding:12px 14px;border:2px solid var(--line)}
+.cell b{font-size:30px;display:block;line-height:1.1}
+.cell.alarm{border-color:var(--bad);background:var(--bad-soft)}
+.cell.good{border-color:var(--ok);background:var(--ok-soft)}
+ol.list li{margin-bottom:8px}
+footer{margin-top:40px;font-size:15px;color:var(--muted)}
+@media (max-width:560px){h1{font-size:32px}.overall{grid-template-columns:1fr 1fr 1fr}.stat b{font-size:24px}.matrix{grid-template-columns:1fr}.rail{width:8px}.topic{grid-template-columns:1fr}.topic .go{grid-row:auto;grid-column:1}}
+@media (prefers-reduced-motion:no-preference){.fb{animation:in .25s ease-out}@keyframes in{from{opacity:0;transform:translateY(6px)}}}
+</style>
+</head>
+<body>
+<div class="shell"><div class="rail" aria-hidden="true"></div><main id="app"></main></div>
+<script>
+"use strict";
+/* ---------- content (questions written for this app, based on the textbook's Tools chapter) ---------- */
+const TOPICS=[
+ {id:"t1",tool:1,name:"Safety and referencing"},
+ {id:"t2",tool:1,name:"Accuracy, precision and validity"},
+ {id:"t3",tool:1,name:"Measuring volume, mass, time and temperature"},
+ {id:"t4",tool:1,name:"pH, electricity and colorimetry"},
+ {id:"t5",tool:1,name:"Solutions and titration"},
+ {id:"t6",tool:1,name:"Separation and purification"},
+ {id:"t7",tool:1,name:"Chromatography"},
+ {id:"t8",tool:1,name:"Calorimetry"},
+ {id:"t9",tool:2,name:"Spreadsheets and models"},
+ {id:"t10",tool:3,name:"Units and uncertainties"},
+ {id:"t11",tool:3,name:"Errors and graphs"}];
+const TOOLS={1:"Tool 1: Experimental techniques",2:"Tool 2: Technology",3:"Tool 3: Mathematics"};
+const I=[];
+const M=(id,t,src,q,o,a,e,fig)=>I.push({id,t,src,type:"mc",q,o,a,e,fig});
+const X=(id,t,src,q,o,a,e)=>I.push({id,t,src,type:"multi",q,o,a,e});
+const N=(id,t,src,q,a,tol,unit,e,fig)=>I.push({id,t,src,type:"num",q,a,tol,unit,e,fig});
+const T=(id,t,src,q,acc,e)=>I.push({id,t,src,type:"text",q,acc,e});
+const O=(id,t,src,q,items,e)=>I.push({id,t,src,type:"order",q,items,e});
+const P=(id,t,src,q,model)=>I.push({id,t,src,type:"open",q,model});
+const H=["explosive","flammable","oxidising","corrosive","toxic (skull and crossbones)","harmful / irritant (exclamation mark)","health hazard","hazardous to the environment"];
+const HN=" Labels vary slightly between suppliers, so check the safety data sheet.";
+
+/* t1 */
+X("1a","t1","Q1a","Which hazard pictograms would you expect on a bottle of <b>concentrated nitric acid</b>?",H,[2,3,4],"It burns skin and eyes (corrosive), gives off toxic fumes (toxic) and is a strong oxidising agent (oxidising)."+HN);
+X("1b","t1","Q1b","Which hazard pictograms would you expect on a bottle of <b>0.10 mol dm⁻³ sulfuric acid</b>?",H,[5],"Dilute sulfuric acid is not corrosive, but it can still irritate skin and eyes: exclamation mark."+HN);
+X("1c","t1","Q1c","Which hazard pictograms would you expect on a bottle of <b>solid copper(II) sulfate</b>?",H,[3,5,7],"It can seriously damage eyes (corrosive), is harmful if swallowed (exclamation mark) and is very toxic to aquatic life (environment)."+HN);
+X("1d","t1","Q1d","Which hazard pictograms would you expect on a container of <b>solid sodium metal</b>?",H,[1,3],"Sodium reacts with water to release flammable hydrogen, and forms corrosive sodium hydroxide."+HN);
+X("1e","t1","Q1e","Which hazard pictograms would you expect on a bottle of <b>cyclohexane</b>?",H,[1,5,6,7],"Highly flammable, harmful (skin irritation, drowsiness), a health hazard if swallowed (aspiration) and toxic to aquatic life."+HN);
+X("2","t1","Q2","Which pieces of information belong in a complete book reference?",["authors (surname first)","year of publication","title","edition","publisher","place of publication","number of pages","price"],[0,1,2,3,4,5],"The exact format depends on your school's referencing system (e.g. APA), but these six elements are always needed.");
+
+/* t2 */
+M("dbq-eth","t2","Data-based question","Three calorimetry trials gave ΔH<sub>c</sub>(ethanol) = −705, −707 and −701 kJ mol⁻¹ (± 5 kJ mol⁻¹), mean −704 kJ mol⁻¹. The data booklet value is −1367 kJ mol⁻¹. How would you describe the results?",["high accuracy, low precision","low accuracy, high precision","high accuracy, high precision","low accuracy, low precision"],1,"The three values agree within the ± 5 kJ mol⁻¹ uncertainty: high precision. The mean is about 50 % away from the accepted value: low accuracy.");
+P("4","t2","Q4","Explain why pH values measured with a pH probe are more precise than values read from pH paper.","A probe shows the pH to one or two decimal places. With pH paper you compare a colour with a chart by eye, which only gives an approximate value and depends on how the observer sees the colour.");
+P("5","t2","Q5","Can experimental results be reliable but not valid? Give an example.","Yes. Results are <b>reliable</b> if repeats give the same values. They are <b>valid</b> only if the method really answers the research question. Example: measuring the conductivity of pure water using tap water gives consistent but invalid results.");
+M("dbq-cru","t2","Data-based question","A student records: empty crucible 13.55 g; crucible + hydrated copper(II) sulfate 11.96 g; crucible + anhydrous copper(II) sulfate 11.60 g (all ± 0.01 g). What is the mistake?",["The anhydrous salt cannot be lighter than the hydrated salt","The empty crucible cannot be heavier than the crucible with the salt in it","The balance uncertainty is too large","The mass lost on heating is too small"],1,"The empty crucible cannot weigh more than crucible + sample. Possible causes: it was weighed with its lid the first time and without the lid later, or the balance had been tared by someone else.");
+M("6","t2","Q6","Which mass reading was obtained with the most precise balance?",["0.0007 g","2.0 g","2.030 g","100.10 g"],0,"0.0007 g is given to four decimal places, so the balance resolves 0.0001 g. The other readings have fewer decimal places.");
+M("7","t2","Q7","A feather on a kitchen balance gives a reading of zero. Is the feather massless?",["Yes, feathers have no mass","No, its mass is below the resolution of this balance","No, the balance must be broken","Yes, the air holds it up exactly"],1,"The feather has a mass, but it is too small to register on a low-precision balance. An analytical balance would detect it.");
+
+/* t3 */
+X("8","t3","Q8","Which of these are suitable for <b>precise</b> volume measurements?",["volumetric pipette","volumetric flask","burette","beaker","conical flask","measuring cylinder"],[0,1,2],"Volumetric pipettes, volumetric flasks and burettes are calibrated precisely. A measuring cylinder is only approximate; beakers and conical flasks are for holding liquids.");
+const G=["burette","volumetric flask","beaker","measuring cylinder","volumetric pipette"];
+M("9a","t3","Q9a","Which glassware would you use to find the volume of liquid added during a titration?",G,0,"A burette lets you add a variable volume and read it precisely.");
+M("9b","t3","Q9b","Which glassware would you use to prepare a standard solution from a solid?",G,1,"A volumetric flask holds one exact volume when filled to the mark.");
+M("9c","t3","Q9c","Which glassware would you use to carry acid from the reagent bottle to your bench?",G,2,"A beaker (or conical flask) is fine for carrying; no precise measurement is needed.");
+M("9d","t3","Q9d","Which glassware would you use to measure <i>approximately</i> 25 cm³ of liquid?",G,3,"A measuring cylinder is quick and good enough for approximate volumes.");
+N("10","t3","Q10","Read the volume in this measuring cylinder (1 cm³ divisions). Read the bottom of the meniscus at eye level and estimate one more digit.",55.8,0.3,"cm³","About 55.8 cm³ ± 0.1 cm³. The last digit is estimated, so different people may read slightly different values.","cyl");
+M("11a","t3","Q11a","An iodine clock reaction gave times of 01:15.120, 01:10.400 and 01:12.985 (min:s.ms). What are these to the nearest second?",["75 s, 70 s, 73 s","75 s, 70 s, 72 s","15 s, 10 s, 13 s","75.1 s, 70.4 s, 73.0 s"],0,"1 min 15.120 s = 75.120 s ≈ 75 s; 70.400 s ≈ 70 s; 72.985 s ≈ 73 s.");
+M("11b","t3","Q11b","The stopwatch reads to ± 1 ms. Which uncertainty is realistic for these times?",["± 0.001 s","± 0.01 s","± 1 or 2 s","± 10 s"],2,"The stopwatch is much more precise than the person using it. Reaction time when judging the colour change makes ± 1 or 2 s realistic.");
+N("11c","t3","Q11c","Calculate the mean of the three times, to the nearest second.",73,0.5,"s","(75.120 + 70.400 + 72.985) ÷ 3 = 72.8 s ≈ 73 s.");
+P("12a","t3","Q12a","A student heats 5 cm³ of water in a beaker and measures the temperature with the thermometer bulb touching the bottom of the beaker. Identify the problems and suggest a better method.","5 cm³ is too little water to cover the bulb, and the heated glass at the bottom is hotter than the water, so the reading is too high. Use enough liquid to cover the bulb and keep the bulb away from the bottom of the container.");
+P("12b","t3","Q12b","To run a reaction at 2 °C, a student cools one reagent in an ice bath, takes the beaker out and adds the second reagent. What is wrong, and what should the student do instead?","The cooled reagent warms up once it leaves the ice bath, and the second reagent is at room temperature, so the mixture ends up above 2 °C. Cool both reagents and keep the reaction mixture in the ice bath.");
+P("12c","t3","Q12c","To study an enzyme at 40 °C, a student puts a test tube of enzyme solution into a 40 °C water bath and adds the substrate straight away. What is the problem?","The enzyme solution has not had time to reach 40 °C. Wait until it has reached the water-bath temperature before adding the substrate.");
+N("13","t3","Q13","Read both ends of the orange bar (smallest division 0.1). What is its length?",7.65,0.02,"","Right end 19.50, left end 11.85: 19.50 − 11.85 = 7.65. The ruler shows no unit, so you cannot state one.","ruler");
+M("13b","t3","Q13","What is the uncertainty of this length measurement?",["± 0.05","± 0.10","± 0.01","± 0.5"],1,"Each reading is ± 0.05 (half the smallest division). When two readings are subtracted, their uncertainties add: ± 0.10.","ruler");
+M("14","t3","Q14","Which chemistry-related measurement could you make with a caliper?",["the volume of a gas","the dimensions of a single marble chip","the mass of a crystal","the temperature of a solution"],1,"A caliper measures lengths precisely, for example the size of one calcium carbonate chip.");
+
+/* t4 */
+M("15a","t4","Q15","Universal indicator paper matches pH 2 on the colour chart, but another person might read 1 or 3. How would you report the pH?",["2","2 ± 0.1","2 ± 1","2.00 ± 0.01"],2,"Colour matching depends on the observer, so ± 1 pH unit is realistic.");
+M("15b","t4","Q15","A pH probe displays 6.5. How would you report the value?",["6.5 ± 1","6.5 ± 0.1","6.5 ± 0.5","6.50 ± 0.01"],1,"A digital display: ± 1 in the last digit shown. pH values have no unit.");
+P("16","t4","Q16","Outline one advantage and one disadvantage of (a) pH indicators and (b) pH probes.","(a) Indicators are quick and convenient, but they depend on how you see colours, only give a rough value, and some are harmful.<br>(b) Probes give precise, quantitative values, but they are expensive, need cleaning and calibration, and can be affected by temperature.");
+M("17","t4","Q17","What carries the current in a copper wire or a graphite electrode?",["mobile ions","delocalised electrons","protons","neutral molecules"],1,"In metals and graphite, delocalised electrons move through the solid.");
+M("18","t4","Q18","What carries the current in molten lead(II) bromide or aqueous sodium chloride?",["delocalised electrons","mobile ions","free atoms","water molecules"],1,"In electrolytes, ions are free to move and carry the charge.");
+P("19","t4","Q19","Explain why the conductivity changes as each reaction proceeds:<br>(a) HCl(aq) + NaOH(aq) → NaCl(aq) + H₂O(l)<br>(b) AgNO₃(aq) + NaBr(aq) → AgBr(s) + NaNO₃(aq)","In both cases the conductivity <b>decreases</b> because the total concentration of ions falls.<br>(a) The strong acid and strong base are fully ionised; the product water is hardly ionised.<br>(b) Both reactants are dissolved ionic compounds, but AgBr precipitates as a solid and removes ions from the solution.");
+P("20","t4","Q20","For each variable – mass, volume, time, temperature, pH, current and potential difference – name an experiment you have done and the instrument you used.","Answers will vary, for example: mass – top-pan balance (empirical formula of a metal oxide); volume – burette (titration); time – stopwatch (rate of CaCO₃ + HCl); temperature – thermometer or temperature probe (enthalpy of neutralisation); pH – pH probe (pH curve); current – ammeter (electrolysis); potential difference – voltmeter (cell potential).");
+P("40","t4","Q40","Compare and contrast electrolytic and voltaic cells.","<b>Both:</b> two electrodes and an electrolyte; conversion between chemical and electrical energy; reduction at the cathode, oxidation at the anode.<br><b>Voltaic:</b> spontaneous, chemical → electrical energy, usually two half-cells, cathode positive and anode negative.<br><b>Electrolytic:</b> non-spontaneous, needs an external power supply, electrical → chemical energy, usually one vessel, anode positive and cathode negative.");
+M("41a","t4","Q41a","[FeSCN]²⁺ absorbs most strongly at about 490 nm (blue-green). What colour is its solution?",["blue","green","red-orange (blood red)","violet"],2,"The colour you see is complementary to the colour absorbed. The complement of blue-green is red-orange.");
+N("41b","t4","Q41b","A calibration line for [FeSCN]²⁺ follows A = 14 000 × c (c in mol dm⁻³). Calculate c for a sample with A = 0.225.",1.61e-5,0.02e-5,"mol dm⁻³","c = 0.225 ÷ 14 000 = 1.61 × 10⁻⁵ mol dm⁻³.");
+N("dbq-prot","t4","Data-based question","A straight calibration line passes through the origin and through (0.40 mmol dm⁻³, absorbance 0.300). A protein solution has an absorbance of 0.285. Determine its concentration.",0.38,0.01,"mmol dm⁻³","Gradient = 0.300 ÷ 0.40 = 0.75. c = 0.285 ÷ 0.75 = 0.380 mmol dm⁻³. On the graph: go across from 0.285 to the line, then down to the axis.");
+
+/* t5 */
+O("21","t5","Q21","Put the steps for preparing a standard solution in the right order.",["Weigh the required mass of solute","Dissolve it in a little deionised water in a beaker","Pour the solution into a volumetric flask","Rinse beaker, funnel and stirring rod into the flask with deionised water","Add deionised water up to the mark","Stopper and invert the flask several times","Transfer to a labelled reagent bottle for storage"],"Correct order (book letters): E – B – D – F – A – G – C.");
+X("22","t5","Q22","A student prepares 100 cm³ of 0.50 mol dm⁻³ copper(II) sulfate. Which steps were mistakes?",["weighing out 7.98 g of hydrated copper(II) sulfate","tipping the solid straight into the volumetric flask through a funnel","filling the flask with tap water","adding the last water dropwise near the mark","removing liquid after the meniscus went above the mark","inverting the stoppered flask only twice","storing the solution in the labelled volumetric flask"],[0,1,2,4,5,6],"0.050 mol of CuSO₄·5H₂O (M = 249.72 g mol⁻¹) is 12.49 g – 7.98 g is the mass of anhydrous CuSO₄. Dissolve the solid in a beaker first; use deionised water; if you overshoot the mark, start again (removing liquid also removes solute); invert many times; store the solution in a labelled bottle, not in the volumetric flask. Adding the last water dropwise was correct.");
+M("23","t5","Q23","Sodium hydroxide is hygroscopic. What does this mean for making a standard NaOH solution by weighing?",["Nothing – NaOH is a primary standard","Part of the weighed mass is water, so the concentration is not exactly known","NaOH reacts with glass, so the flask breaks","The solution becomes more concentrated over time"],1,"Solid NaOH absorbs moisture from the air, so part of its mass is an unknown mass of water. It is not a primary standard; NaOH solutions are standardised by titration.");
+N("24a","t5","Q24a","What volume of 5.00 mol dm⁻³ HCl do you need to make 750 cm³ of 1.00 mol dm⁻³ HCl?",150,1,"cm³","c₁V₁ = c₂V₂ → V₁ = 1.00 × 0.750 ÷ 5.00 = 0.150 dm³ = 150 cm³.");
+N("24b","t5","Q24b","What volume of 5.00 mol dm⁻³ HCl do you need to make 3.00 dm³ of 0.150 mol dm⁻³ HCl?",90,0.5,"cm³","V₁ = 0.150 × 3.00 ÷ 5.00 = 0.0900 dm³ = 90.0 cm³.");
+N("25","t5","Q25","A 0.50 mol dm⁻³ stock solution is diluted 1 in 10 four times in a row (serial dilution). What is the concentration after the fourth dilution?",5e-5,0.1e-5,"mol dm⁻³","Each step divides by 10: 5.0 × 10⁻² → 5.0 × 10⁻³ → 5.0 × 10⁻⁴ → 5.0 × 10⁻⁵ mol dm⁻³.");
+M("29","t5","Q29","Why is hydrated magnesium sulfate heated to constant mass when finding its water of crystallisation?",["So the crystals cool down faster","To be sure all the water has been removed","To oxidise the magnesium","To reduce the uncertainty of the balance"],1,"Heating drives off the water. Only when the mass stops changing can you be sure no water is left in the crystals.");
+P("39a","t5","Q39a","Explain why the burette and pipette are rinsed with the solutions they will hold, not with pure water.","Rinsing removes traces of previous reagents. Water left inside would dilute the solution and change its concentration.");
+M("39b","t5","Q39b","Why do you carry out a rough titration first?",["To use up the indicator","To find the approximate end-point volume so the accurate titrations are quicker","To rinse the burette","To warm up the solution"],1,"It tells you roughly how much titrant is needed, so you can add it quickly and then go drop by drop near the end point.");
+M("39c","t5","Q39c","Why does it not matter if the conical flask holding the analyte is wet?",["Water reacts with the titrant","Water does not change the number of moles of analyte in the flask","Water makes the colour change sharper","It does matter – the flask must be dry"],1,"Extra water dilutes the analyte but does not change the amount in moles, so the same volume of titrant is needed (as long as the colour change is still visible).");
+X("39d","t5","Q39d","Which of these are mistakes to avoid when titrating?",["not rinsing the burette with the titrant","forgetting to add the indicator","using a titrant of inexact concentration","misjudging the colour change at the end point","leaving an air bubble in the burette tip","reading the burette at eye level","swirling the flask during the titration"],[0,1,2,3,4],"Reading at eye level and swirling the flask are good practice. Misreading the burette is another typical mistake.");
+M("39e1","t5","Q39e(i)","Which is the balanced equation for hydrochloric acid reacting with sodium carbonate?",["HCl + Na₂CO₃ → NaCl + H₂O + CO₂","2HCl(aq) + Na₂CO₃(aq) → 2NaCl(aq) + H₂O(l) + CO₂(g)","2HCl(aq) + Na₂CO₃(aq) → 2NaCl(aq) + H₂(g) + CO₂(g)","HCl(aq) + NaCO₃(aq) → NaCl(aq) + HCO₃(aq)"],1,"Two HCl per Na₂CO₃; the products are sodium chloride, water and carbon dioxide.");
+N("39e2","t5","Q39e(ii)","0.300 g of sodium carbonate (M = 105.99 g mol⁻¹) is neutralised exactly by 23.83 cm³ of HCl(aq). Calculate the concentration of the acid.",0.238,0.002,"mol dm⁻³","n(Na₂CO₃) = 0.300 ÷ 105.99 = 2.830 × 10⁻³ mol; n(HCl) = 2 × 2.830 × 10⁻³ = 5.661 × 10⁻³ mol; c = 5.661 × 10⁻³ ÷ 0.02383 dm³ = 0.238 mol dm⁻³.");
+
+/* t6 */
+P("26","t6","Q26","Compare and contrast reflux and simple distillation.","<b>Both</b> use a heat source, a condenser and anti-bumping granules. <b>Reflux</b> is a heating technique for preparing compounds: vapours condense and run back, so nothing is lost. <b>Distillation</b> is a separation method: the vapour is condensed and collected separately.");
+P("27","t6","Q27","Compare and contrast simple and fractional distillation.","<b>Both</b> separate by boiling point; the most volatile component comes off first. <b>Fractional</b> distillation uses a column packed with beads and can separate several volatile liquids. <b>Simple</b> distillation separates a volatile liquid from a non-volatile component.");
+M("28a","t6","Q28a","Ethanol is oxidised by acidified dichromate, first to an aldehyde and then to a carboxylic acid. Which technique gives you the <b>aldehyde</b>?",["reflux","distillation, removing the aldehyde as it forms","filtration","chromatography"],1,"The aldehyde is more volatile than the alcohol and the acid, so it can be distilled off before it is oxidised further.");
+M("28b","t6","Q28b","Which technique gives you the <b>carboxylic acid</b>?",["distillation","reflux with excess oxidising agent","crystallisation","separating funnel"],1,"Reflux keeps the aldehyde in the flask so it is oxidised further. (Some ester from alcohol + acid also forms.)");
+M("30a","t6","Q30a","Copper(II) sulfate crystals are made from sulfuric acid and excess copper(II) oxide. What is removed in the first filtration?",["the salt solution","the unreacted excess base","water","sulfuric acid"],1,"The base is used in excess so all the acid reacts; the leftover solid base is filtered off.");
+P("30b","t6","Q30b","Discuss heating an evaporating dish directly, compared with heating it over a hot water bath.","Direct heating is faster, but the solution can boil vigorously and spit, so product is lost. A water bath is slower, but the water evaporates without boiling and no solution is lost.");
+M("30c","t6","Q30c","Why is the salt solution not evaporated to dryness?",["It would take too long","The crystals could decompose or lose their water of crystallisation","The dish could crack","The crystals would dissolve again"],1,"Overheating can decompose the salt or turn hydrated crystals anhydrous.");
+const SEP=["filtration","fractional distillation","crystallisation","separating funnel","dissolving in hot water, hot filtration and recrystallisation","chromatography"];
+M("31a","t6","Q31a","How would you separate solid barium sulfate from aqueous sodium chloride?",SEP,0,"Barium sulfate is insoluble, so it stays on the filter paper.");
+M("31b","t6","Q31b","How would you separate an ethanol–water mixture?",SEP,1,"The two liquids mix completely but have different boiling points.");
+M("31c","t6","Q31c","How would you obtain sodium chloride from its solution?",SEP,2,"Crystallisation gives the salt. If you want the water instead, use simple distillation.");
+M("31d","t6","Q31d","How would you separate water and cyclohexane?",SEP,3,"They are immiscible and form two layers.");
+M("31e","t6","Q31e","How would you purify aspirin from soluble and insoluble impurities?",SEP,4,"Aspirin dissolves well in hot water but poorly in cold water. Hot filtration removes insoluble impurities; recrystallisation leaves the soluble ones in solution.");
+M("dbq-mp","t6","Data-based question","Aspirin: melting range 122–129 °C (literature 136 °C). Methyl 3-nitrobenzoate: 76–77 °C (literature 78 °C). What can you conclude?",["Both products are pure","The aspirin is impure; the methyl 3-nitrobenzoate is probably pure","The aspirin is pure; the methyl 3-nitrobenzoate is impure","Both products are impure"],1,"Impurities lower the melting point and broaden the melting range. Confirming purity would need further analysis.");
+
+/* t7 */
+M("32a","t7","Q32a","Why is a lid placed on a chromatography container?",["To keep light out","So the air inside is saturated with solvent vapour and little solvent evaporates","To stop the paper falling over","To keep the temperature low"],1,"A saturated atmosphere helps the chromatogram run evenly and reduces solvent loss.");
+M("32b","t7","Q32b","In a leaf-pigment chromatogram, a yellow band has travelled furthest, above the green bands. Which pigment has the greatest affinity for the solvent?",["the green pigment","the yellow pigment","all have the same affinity","it depends only on the paper"],1,"The component carried furthest by the solvent has the greatest affinity for it.");
+X("33","t7","Q33","A student runs a paper chromatogram of black food colouring. The start line is drawn in ink, the spots are on the start line, the solvent level is above the start line and the beaker has a lid. Which of these are errors?",["start line drawn in ink","solvent level above the start line","using a lid","putting the spots on the start line"],[0,1],"Ink components travel up the paper and interfere – use pencil. Spots below the solvent surface dissolve into the solvent instead of moving up the paper.");
+M("34a","t7","Q34a","In a two-dimensional chromatogram, leucine travels much further in solvent 1 (butanol/ethanoic acid/water) than aspartic acid and glutamic acid. Which has the greatest affinity for solvent 1?",["aspartic acid","glutamic acid","leucine"],2,"The amino acid that travels furthest has the greatest affinity for the solvent.");
+P("34b","t7","Q34b","R groups: aspartic acid –CH₂COOH, glutamic acid –CH₂CH₂COOH, leucine –CH₂CH(CH₃)₂. Suggest why the three amino acids have different affinities for the two solvents.","Leucine has a non-polar hydrocarbon R group, so it has a greater affinity for solvent 1 and travels furthest. Asp and Glu both carry a polar –COOH group in the R group, so they are held more strongly by the polar stationary phase; being so similar, they separate only slightly in solvent 1. Glu has one extra CH₂, so it is slightly less polar and moves a little further than Asp in solvent 2.");
+N("35a","t7","Q35a","A spot travelled 3.95 cm and the solvent front 5.02 cm from the start line. Calculate the R<sub>F</sub> value.",0.787,0.003,"","R<sub>F</sub> = 3.95 ÷ 5.02 = 0.787 (3 s.f.). R<sub>F</sub> values have no unit.");
+M("35b","t7","Q35b","A spot lies about halfway between the start line and the solvent front. Estimate its R<sub>F</sub> value.",["0.1","0.5","1.0","2.0"],1,"Halfway means the spot moved half as far as the solvent: about 0.5. A spot a quarter to a third of the way up has R<sub>F</sub> ≈ 0.2–0.3.");
+
+/* t8 */
+X("36a","t8","Q36a","Magnesium reacts with dilute HCl in a polystyrene cup with a lid; a thermometer passes through a hole in the lid. Which features reduce heat loss?",["the insulated container","the lid","the thermometer","the magnesium being a powder"],[0,1],"Insulation and a lid reduce heat loss to the surroundings.");
+M("36b","t8","Q36b","Which change would reduce heat loss even further?",["use a glass beaker instead","stand the cup inside a second cup","remove the lid","stir less often"],1,"Nesting the cup inside another cup improves the insulation.");
+M("37a","t8","Q37a","Which equation is correct for zinc reacting with hydrochloric acid?",["Zn(s) + 2HCl(aq) → ZnCl₂(aq) + H₂(g)","Zn(s) + HCl(aq) → ZnCl(aq) + H(g)","Zn(s) + 2HCl(aq) → ZnCl₂(s) + H₂(aq)","2Zn(s) + 2HCl(aq) → 2ZnCl(aq) + H₂(g)"],0,"Zinc forms Zn²⁺, so zinc chloride is ZnCl₂; hydrogen is released as a gas.");
+M("37b","t8","Q37b","The temperature of the acid rises by 11.0 °C. Is the reaction exothermic or endothermic?",["exothermic","endothermic"],0,"The solution warmed up, so energy was released.");
+N("37c","t8","Q37c","5.0 g of zinc reacts with excess acid (200 g of solution, c = 4.18 J g⁻¹ K⁻¹). The temperature rises by 11.0 °C. Calculate the heat released.",9.20,0.05,"kJ","Q = mcΔT = 200 g × 4.18 J g⁻¹ K⁻¹ × 11.0 K = 9196 J ≈ 9.20 kJ.");
+N("37d","t8","Q37d","Use Q = 9.196 kJ to determine ΔH for the reaction (M(Zn) = 65.38 g mol⁻¹).",-120,3,"kJ mol⁻¹","Zinc is limiting: n(Zn) = 5.0 ÷ 65.38 = 0.0765 mol. ΔH = −9.196 kJ ÷ 0.0765 mol = −120 kJ mol⁻¹. Negative sign: exothermic.");
+X("37e","t8","Q37e","Which assumptions are made in this calculation?",["the solution has the specific heat capacity of water","all the heat goes into the solution","1 cm³ of solution has a mass of 1 g","the heat capacity of the zinc is negligible","the reaction is endothermic","the acid is the limiting reactant"],[0,1,2,3],"Another assumption: the heat is spread evenly through the solution.");
+P("38","t8","Q38","A student finds a combustion enthalpy with a spirit burner and a copper calorimeter: 20 cm³ of water, burner weighed and lit without its cap, water heated for one minute, burner put out but cap left off, water topped up, burner reweighed. Suggest practical improvements.","For example: measure the <b>mass</b> of water, not its volume; use more water so the thermometer does not touch the bottom and the water cannot boil; heat long enough to burn a measurable mass of fuel; replace the cap straight away to stop the fuel evaporating; keep the calorimeter at the same small height above the flame; include the heat taken up by the copper; shield the apparatus from draughts; watch for soot (incomplete combustion).");
+N("dbq-but","t8","Data-based question","Copper calorimeter 24.03 g; calorimeter + water 99.92 g; water 21.7 °C → 60.1 °C; spirit burner 75.47 g → 74.38 g. c(water) = 4.18 J g⁻¹ K⁻¹, c(copper) = 0.385 J g⁻¹ K⁻¹, M(butan-1-ol) = 74.14 g mol⁻¹. Calculate the experimental enthalpy of combustion of butan-1-ol, including the heat taken up by the copper.",-853,5,"kJ mol⁻¹","m(water) = 75.89 g, ΔT = 38.4 K. Q(water) = 12.18 kJ, Q(copper) = 0.355 kJ, total 12.54 kJ. n = 1.09 g ÷ 74.14 g mol⁻¹ = 0.01470 mol. ΔH = −12.54 ÷ 0.01470 = −853 kJ mol⁻¹.");
+
+/* t9 */
+P("42","t9","Q42","Compare digital and physical molecular models.","<b>Digital:</b> can show very large molecules, can be saved and shared, switch easily between representations; but they need hardware and software and cannot be handled. Physical models are good for introducing ideas in school; digital models are useful for research.");
+T("43a","t9","Q43a","Write a spreadsheet formula that calculates 0.4 ÷ (5 × 4.18).",["=0.4/(5*4.18)","=0,4/(5*4,18)"],"=0.4/(5*4.18) – the brackets make the multiplication happen first.");
+T("43b","t9","Q43b","Write a spreadsheet formula for the mean of 42, 32, 45, 46 and 48.",["=AVERAGE(42,32,45,46,48)","=AVERAGE(42;32;45;46;48)","=MITTELWERT(42;32;45;46;48)","=MITTELWERT(42,32,45,46,48)"],"=AVERAGE(42,32,45,46,48). In a German spreadsheet: =MITTELWERT(42;32;45;46;48).");
+T("43c","t9","Q43c","Write a spreadsheet formula that calculates −log(0.0034).",["=-LOG(0.0034)","=-LOG10(0.0034)","=-LOG(0,0034)","=-LOG10(0,0034)"],"=-LOG(0.0034) (this is how you calculate a pH from [H⁺]).");
+T("43d","t9","Q43d","Write a spreadsheet formula that calculates 10⁻¹²·⁵.",["=10^(-12.5)","=10^-12.5","=POWER(10,-12.5)","=10^(-12,5)","=10^-12,5","=POTENZ(10;-12,5)","=POWER(10;-12,5)"],"=10^(-12.5) or =POWER(10,-12.5).");
+T("43e","t9","Q43e","Write a spreadsheet formula for the range of the values in cells A5 to A8.",["=MAX(A5:A8)-MIN(A5:A8)"],"=MAX(A5:A8)-MIN(A5:A8)");
+M("44a","t9","Q44a","What does =MAX(C6:C10) do?",["adds up C6 and C10","finds the largest value in cells C6 to C10","finds the larger of C6 and C10 only","counts the cells from C6 to C10"],1,"A colon means a range of cells.");
+M("44b","t9","Q44b","What does =SUM(D5,E7,G3) do?",["adds all cells from D5 to G3","adds the three cells D5, E7 and G3","finds the mean of D5, E7 and G3","multiplies D5, E7 and G3"],1,"Commas list separate cells; a colon would mean a range.");
+M("44c","t9","Q44c","Which calculation does =A3*B3*4.18*46.07/C4 carry out?",["(A3 × B3 × 4.18 × 46.07) ÷ C4","A3 × B3 + 4.18 × 46.07 ÷ C4","(A3 + B3) × 4.18 × 46.07 ÷ C4","A3 × B3 × 4.18 ÷ (46.07 × C4)"],0,"Multiplication and division are worked out from left to right.");
+
+/* t10 */
+M("47a","t10","Q47a","What is the SI unit of time?",["minute (min)","second (s)","hour (h)","sec"],1,"The SI unit of time is the second, symbol s.");
+M("47b","t10","Q47b","What is the SI unit of energy?",["calorie (cal)","joule (J)","watt (W)","kilowatt hour (kWh)"],1,"Energy is measured in joules, J.");
+M("47c","t10","Q47c","What is the SI unit of volume?",["litre (L)","cm³","m³","dm³"],2,"The SI unit is m³; cm³ and dm³ are commonly used multiples.");
+M("47d","t10","Q47d","What is the SI unit of amount of substance?",["gram (g)","mole (mol)","particle","kilogram (kg)"],1,"Amount of substance is measured in moles, mol.");
+M("47e","t10","Q47e","What is the SI unit of pressure?",["atmosphere (atm)","bar","pascal (Pa)","mmHg"],2,"Pressure is measured in pascals, Pa.");
+M("48a","t10","Q48","Which is written correctly?",["16 sec","16 s","16s","16 secs"],1,"The symbol for seconds is s, with a space between number and unit.");
+M("48b","t10","Q48","Which is written correctly?",["304 °K","304 K","304K","304 °C"],1,"Kelvin temperatures are written without the degree sign.");
+M("48c","t10","Q48","Which is written correctly?",["−77.5 kJmol⁻¹","−77.5 kJ mol⁻¹","−77.5kJ mol⁻¹","−77.5 KJ mol⁻¹"],1,"Leave a space between value and unit and between different unit symbols; k is lower case.");
+M("48d","t10","Q48","Which is written correctly?",[".5 mol","0.5 mol","0.5 mole","0.5mol"],1,"A decimal point needs a number in front of it, and the unit symbol is mol.");
+M("49","t10","Q49","A measuring cylinder has tick marks every 1 cm³. What is its uncertainty?",["± 1 cm³","± 0.5 cm³","± 0.1 cm³","± 0.05 cm³"],1,"For an analogue scale, use half the smallest division.");
+M("50a","t10","Q50","A pH meter displays 9.11. How would you report the reading?",["9.11 ± 0.1","9.11 ± 0.01","9.11 ± 0.005","9.1 ± 1"],1,"Digital display: ± 1 in the last digit. pH has no unit.");
+M("50b","t10","Q50","A thermometer with 1 °C divisions shows a level just above 88 °C. How would you report the reading?",["88.2 °C ± 0.5 °C","88 °C ± 1 °C","88.2 °C ± 0.1 °C","88.20 °C ± 0.05 °C"],0,"Half the smallest division: ± 0.5 °C.");
+M("50c","t10","Q50","A voltmeter scale has 0.1 V divisions and the needle points at 1.2 V. How would you report the reading?",["1.2 V ± 0.1 V","1.20 V ± 0.05 V","1.20 V ± 0.01 V","1.200 V ± 0.005 V"],1,"Half the smallest division: ± 0.05 V, so the reading is given to two decimal places.");
+N("dbq-h2a","t10","Data-based question","Three readings of the volume of H₂ after 2 minutes: 47.7, 43.5 and 44.0 cm³ (± 0.5 cm³). Calculate the mean volume.",45.1,0.05,"cm³","(47.7 + 43.5 + 44.0) ÷ 3 = 45.07 ≈ 45.1 cm³.");
+M("dbq-h2b","t10","Data-based question","Estimate the uncertainty of the mean by halving the range of the readings.",["± 0.5 cm³","± 2 cm³","± 3 cm³","± 4 cm³"],1,"Range = 47.7 − 43.5 = 4.2 cm³; half = 2.1 ≈ ± 2 cm³ (uncertainties to 1 s.f.).");
+M("dbq-h2c","t10","Data-based question","Estimate the uncertainty from the reading furthest from the mean.",["± 1 cm³","± 2 cm³","± 3 cm³","± 5 cm³"],2,"47.7 − 45.1 = 2.6 cm³ ≈ ± 3 cm³.");
+M("dbq-h2d","t10","Data-based question","Which uncertainty would you report with the data?",["± 0.5 cm³, from the instrument","± 2 cm³, from the half range","± 3 cm³, the largest estimate","the smallest one, so the result looks precise"],2,"When several estimates are possible, it is common practice to report the largest.");
+N("act-u1","t10","Activity","A volume is 19.96 cm³ ± 0.04 cm³. Calculate the percentage uncertainty (1 s.f.).",0.2,0.01,"%","0.04 ÷ 19.96 × 100 = 0.2 %.");
+N("act-u2","t10","Activity","A voltage is 1.08 V ± 2 %. Calculate the absolute uncertainty.",0.02,0.002,"V","1.08 × 0.02 = 0.0216 ≈ ± 0.02 V.");
+N("act-u3","t10","Activity","A temperature is 78.5 °C ± 1 %. Calculate the absolute uncertainty.",0.8,0.02,"°C","78.5 × 0.01 = 0.785 ≈ ± 0.8 °C.");
+N("dbq-rho","t10","Data-based question","An empty measuring cylinder weighs 42.82 g; with 8.1 cm³ of butanol it weighs 49.38 g. Calculate the density of butanol (2 s.f.).",0.81,0.005,"g cm⁻³","m = 49.38 − 42.82 = 6.56 g; ρ = 6.56 g ÷ 8.1 cm³ = 0.81 g cm⁻³.");
+N("dbq-rho2","t10","Data-based question","Balance ± 0.01 g per weighing, cylinder ± 0.5 cm³. Calculate the percentage uncertainty of the density (1 s.f.).",6,0.5,"%","Mass: two weighings → ± 0.02 g → 0.3 %. Volume: 0.5 ÷ 8.1 → 6.2 %. Percentage uncertainties add: 6.5 % ≈ ± 6 %, so ρ = 0.81 ± 0.05 g cm⁻³.");
+
+/* t11 */
+const SR=["systematic error","random error"];
+M("51a","t11","Q51a","Heat loss to the surroundings in a calorimetry experiment is a …",SR,0,"It always makes the temperature change too small – always in the same direction.");
+M("51b","t11","Q51b","Using a miscalibrated colorimeter to measure absorbance is a …",SR,0,"Every reading is off in the same way.");
+M("51c","t11","Q51c","Reading a burette each time from slightly below the meniscus, instead of at eye level, is a …",SR,0,"The parallax error shifts every reading in the same direction.");
+M("51d","t11","Q51d","Using a pH probe that only reports values to the nearest whole number gives a …",SR,1,"The rounding can go either way, so it scatters the results.");
+N("52","t11","Q52","A student found ΔH<sub>c</sub>(butan-1-ol) = −1430 kJ mol⁻¹. The literature value is −2676 kJ mol⁻¹. Calculate the percentage error (3 s.f.).",46.6,0.2,"%","|(−1430 − (−2676)) ÷ (−2676)| × 100 = 46.6 %.");
+N("53c","t11","Q53a","Student C found ΔH(neutralisation) = −35 ± 4 kJ mol⁻¹; the theoretical value is −57 kJ mol⁻¹. Calculate the percentage error.",39,1,"%","|−35 − (−57)| ÷ 57 × 100 = 38.6 ≈ 39 %.");
+N("53d","t11","Q53a","Student D found −50 ± 10 kJ mol⁻¹ (theoretical −57 kJ mol⁻¹). Calculate the percentage error.",12,1,"%","|−50 − (−57)| ÷ 57 × 100 = 12 %.");
+P("53b","t11","Q53b","Comment on the relative impact of random errors on the results of student C (−35 ± 4 kJ mol⁻¹) and student D (−50 ± 10 kJ mol⁻¹).","<b>C:</b> the uncertainty is small compared with the 39 % error. The range −31 to −39 kJ mol⁻¹ does not include −57, so a large <b>systematic</b> error is present.<br><b>D:</b> the uncertainty is large and similar to the 12 % error. The range −40 to −60 kJ mol⁻¹ includes −57, so <b>random</b> error dominates.");
+P("54","t11","Q54","Experimental ΔH<sub>c</sub> (± 40 kJ mol⁻¹) for methanol to octan-1-ol: −230, −400, −680, −814, −990, −1300, −1440, −1700 kJ mol⁻¹. Sketch the graph with error bars and a line of best fit. Then comment on the impact of systematic and random error, using data-booklet values.","All magnitudes are much smaller than the published values (e.g. ethanol −400 vs −1367 kJ mol⁻¹): a large <b>systematic</b> error such as heat loss. The points scatter around a straight line of best fit that passes through most error bars, with no clear outliers: some <b>random</b> error, but a clear negative linear relationship.");
+N("55a","t11","Q55a","Times to collect 25 cm³ of CO₂ with 0.25 mol dm⁻³ NaHCO₃: 210, 277 and 166 s. Calculate the mean time.",218,1,"s","(210 + 277 + 166) ÷ 3 = 217.7 ≈ 218 s.");
+N("55b","t11","Q55b","Estimate the uncertainty of this mean by halving the range.",56,1,"s","(277 − 166) ÷ 2 = 55.5 ≈ 56 s – about 25 % of the mean!");
+N("55e","t11","Q55e","The rate is estimated as 1/t. Calculate the rate for a mean time of 218 s.",0.0046,0.0001,"s⁻¹","1 ÷ 218 = 0.0046 s⁻¹.");
+P("55g","t11","Q55g","Rates (± 30 %) of 0.0046, 0.0067, 0.014, 0.036 and 0.055 s⁻¹ were found for 0.25, 0.50, 1.00, 1.50 and 2.00 mol dm⁻³ NaHCO₃. Comment on the impact of systematic and random error.","Both a straight line and a curve fit the data, but neither passes through the origin, although the rate should be zero at zero concentration: a sign of <b>systematic</b> error. The error bars are large, so <b>random</b> error is significant. You can conclude that the rate increases with concentration, but not whether the relationship is linear.");
+M("g1a","t11","Data-based question","The volume of an air sample rises from about 80 mm³ at 2 °C to about 120 mm³ at 37 °C along a straight line of best fit. Is the correlation positive or negative?",["positive","negative","there is no correlation"],0,"Volume increases as temperature increases.");
+M("g1b","t11","Data-based question","Does this graph show direct proportionality?",["Yes, because it is a straight line","No, because the line does not pass through the origin","Yes, because both quantities increase","No, because the line is curved"],1,"Direct proportionality needs a straight line through (0, 0): doubling x must double y.");
+N("g1c","t11","Data-based question","The line of best fit passes through (7 °C, 84 mm³) and (24 °C, 104 mm³). Calculate the gradient (2 s.f.).",1.2,0.05,"mm³ °C⁻¹","(104 − 84) ÷ (24 − 7) = 1.18 ≈ 1.2 mm³ °C⁻¹: the air volume rises by 1.2 mm³ for every 1 °C.");
+N("g2b","t11","Data-based question","Standards of c = 0.1002, 0.2008, 0.2819, 0.4000, 0.5082 and 0.6000 mol dm⁻³ give absorbances of 0.130, 0.270, 0.380, 0.540, 0.685 and 0.810. An unknown has A = 0.460. Use a line of best fit to determine its concentration.",0.34,0.01,"mol dm⁻³","Read across from A = 0.460 to the line and down to the axis: about 0.34 mol dm⁻³. (With the regression line A = 1.357c − 0.0039: c = 0.342 mol dm⁻³.)");
+N("g2c","t11","Data-based question","Determine the gradient of the line of best fit for these standards (2 s.f.).",1.4,0.05,"mol⁻¹ dm³","A graphing tool gives A = 1.357 c − 0.0039: gradient ≈ 1.4 mol⁻¹ dm³, y-intercept close to zero (−0.0039).");
+M("g2d","t11","Data-based question","Does this calibration graph show direct proportionality between A and c?",["Yes, exactly","Not quite: the y-intercept is small but not zero – uncertainty data would show whether (0, 0) lies within the error","No, the relationship is curved","No, absorbance falls as concentration rises"],1,"A proportional relationship needs a line through the origin.");
+
+/* ---------- figures ---------- */
+const FIG={
+ ruler(){const x=v=>30+(v-11)*72;let t="";for(let i=0;i<=90;i++){const v=11+i/10,h=i%10===0?38:i%5===0?28:18;t+=`<line x1="${x(v).toFixed(1)}" y1="44" x2="${x(v).toFixed(1)}" y2="${44+h}" stroke="#2a78c8" stroke-width="${i%10===0?2:1.2}"/>`;if(i%10===0)t+=`<text x="${x(v).toFixed(1)}" y="112" text-anchor="middle" font-size="18" fill="#2a78c8">${v}</text>`}
+  return `<svg width="720" viewBox="0 0 720 124" role="img" aria-label="Ruler from 11 to 20 with 0.1 divisions and an orange bar above it"><rect x="10" y="42" width="700" height="80" fill="#e3f0fb"/>${t}<rect x="${x(11.85)}" y="14" width="${x(19.5)-x(11.85)}" height="16" rx="3" fill="#ec7a36"/></svg>`},
+ cyl(){const y=v=>250-(v-50)*20;let t="";for(let v=50;v<=60;v++){const L=v%5===0;t+=`<line x1="${L?168:182}" y1="${y(v)}" x2="208" y2="${y(v)}" stroke="currentColor" stroke-width="${L?2:1.3}"/>`;if(v===50||v===60)t+=`<text x="160" y="${y(v)+6}" text-anchor="end" font-size="20" fill="currentColor">${v}</text>`}
+  const m=y(55.8);
+  return `<svg width="300" viewBox="0 0 320 290" role="img" aria-label="Magnified view of a measuring cylinder scale from 50 to 60 cubic centimetres with a curved meniscus"><path d="M92,${m-16} Q150,${m+16} 208,${m-16} L208,280 L92,280 Z" fill="#cfe4f6"/><path d="M92,${m-16} Q150,${m+16} 208,${m-16}" fill="none" stroke="#6aa8d8" stroke-width="2"/><line x1="92" y1="10" x2="92" y2="280" stroke="currentColor" stroke-width="3"/><line x1="208" y1="10" x2="208" y2="280" stroke="currentColor" stroke-width="3"/>${t}<text x="230" y="${m+6}" font-size="18" fill="var(--purple)">◀ eye level</text><text x="150" y="30" text-anchor="middle" font-size="16" fill="currentColor">cm³</text></svg>`}
+};
+
+/* ---------- state ---------- */
+const KEY="toolsChem.v1";
+let prog={};
+try{prog=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){prog={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(prog))}catch(e){}}
+const byId=Object.fromEntries(I.map(x=>[x.id,x]));
+const app=document.getElementById("app");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function stats(ids){let c=0,p=0,w=0;ids.forEach(id=>{const r=prog[id]&&prog[id].r;if(r==="c")c++;else if(r==="p")p++;else if(r==="w")w++});return{c,p,w,n:ids.length}}
+const weak=()=>I.filter(x=>{const s=prog[x.id];return s&&(s.r!=="c"||s.s===false)}).map(x=>x.id);
+
+/* ---------- home ---------- */
+function home(){
+  const all=stats(I.map(x=>x.id)),wk=weak();
+  let h=`<div class="top"><div><h1>Tools for Chemistry</h1><p class="muted">Practise experimental techniques, technology and mathematics. For each answer, say whether you are sure or guessing – that shows you what you really know.</p></div></div>
+  <div class="overall"><div class="stat"><b>${all.c}</b>mastered</div><div class="stat"><b>${all.p+all.w}</b>to work on</div><div class="stat"><b>${all.n-all.c-all.p-all.w}</b>not tried yet</div></div>
+  <div class="row" style="margin:16px 0 8px"><button class="main solid" id="mix">Mixed practice (10 questions)</button><button class="main ghost" id="rev" ${wk.length?"":"disabled"}>Review weak spots (${wk.length})</button></div>`;
+  [1,2,3].forEach(tool=>{h+=`<h3>${TOOLS[tool]}</h3>`;TOPICS.filter(t=>t.tool===tool).forEach(t=>{const ids=I.filter(x=>x.t===t.id).map(x=>x.id),s=stats(ids);const pc=v=>(v/s.n*100).toFixed(1)+"%";
+    h+=`<div class="topic"><span class="name">${t.name}</span><button class="main ghost go" data-t="${t.id}">Practise</button><div class="track" aria-hidden="true"><i class="c" style="width:${pc(s.c)}"></i><i class="p" style="width:${pc(s.p)}"></i><i class="w" style="width:${pc(s.w)}"></i></div><span class="meta">${s.c} of ${s.n} mastered${s.p+s.w?` · ${s.p+s.w} to work on`:""}</span></div>`})});
+  h+=`<footer><p>Your progress is stored only in this browser on this device.</p><button class="link" id="reset">Reset my progress</button></footer>`;
+  app.innerHTML=h;window.scrollTo(0,0);
+  document.getElementById("mix").onclick=()=>start(shuffle(I.map(x=>x.id)).slice(0,10),"Mixed practice");
+  document.getElementById("rev").onclick=()=>start(shuffle(weak()),"Review weak spots");
+  app.querySelectorAll(".go").forEach(b=>b.onclick=()=>{const t=TOPICS.find(x=>x.id===b.dataset.t);start(I.filter(x=>x.t===t.id).map(x=>x.id),t.name)});
+  document.getElementById("reset").onclick=()=>{if(confirm("Delete all your saved progress?")){prog={};save();home()}};
+}
+
+/* ---------- session ---------- */
+let S;
+function start(ids,title){S={ids,title,i:0,res:[]};item()}
+function bar(){return `<div class="progress" aria-hidden="true">${S.ids.map((_,k)=>{const r=S.res[k];return `<span class="${r?r.r:(k===S.i?"now":"")}"></span>`}).join("")}</div>`}
+function item(){
+  const it=byId[S.ids[S.i]],top=TOPICS.find(t=>t.id===it.t);
+  let body="";
+  const fig=it.fig?`<figure>${FIG[it.fig]()}</figure>`:"";
+  if(it.type==="mc"){it._p=shuffle(it.o.map((_,k)=>k));body=`<div class="opts">${it._p.map((o,k)=>`<button class="opt" data-o="${o}" aria-pressed="false"><span class="k">${"ABCDEFGH"[k]}</span><span>${it.o[o]}</span></button>`).join("")}</div>`}
+  if(it.type==="multi"){it._p=shuffle(it.o.map((_,k)=>k));body=`<p class="hint">Select all that apply.</p><div class="opts">${it._p.map(o=>`<button class="opt" data-o="${o}" aria-pressed="false"><span class="k">✓</span><span>${it.o[o]}</span></button>`).join("")}</div>`}
+  if(it.type==="num")body=`<div class="num"><input type="text" id="ans" inputmode="decimal" autocomplete="off" aria-label="Your answer"><span>${it.unit||""}</span></div><p class="hint" style="margin-top:8px">Use a point or comma. Very small numbers: type e.g. 1.5e-5 or 1.5×10^-5.</p>`;
+  if(it.type==="text")body=`<input type="text" id="ans" class="formula" autocomplete="off" spellcheck="false" placeholder="=" aria-label="Your formula">`;
+  if(it.type==="order"){it._p=shuffle(it.items.map((_,k)=>k));it._seq=[];body=`<p class="hint">Tap the steps in the right order.</p><div class="seq" id="seq"></div><div class="opts">${it._p.map(o=>`<button class="opt" data-o="${o}"><span class="k">+</span><span>${it.items[o]}</span></button>`).join("")}</div><div class="row" style="margin-top:10px"><button class="link" id="undo">Undo last step</button></div>`}
+  if(it.type==="open")body=`<textarea id="ans" placeholder="Write your answer here first (it is not saved)." aria-label="Your answer"></textarea>`;
+  const ctrl=it.type==="open"?`<div class="conf" id="conf"><div class="row"><button class="main solid" id="show">Show model answer</button></div></div>`:
+    `<div class="conf" id="conf"><p>How sure are you?</p><div class="row"><button class="main solid" id="sure" disabled>Check – I'm sure</button><button class="main ghost" id="guess" disabled>Check – I'm guessing</button></div></div>`;
+  app.innerHTML=`<div class="top"><button class="link" id="back">← All topics</button><span class="muted">${esc(S.title)}</span></div>${bar()}
+   <div class="card"><div class="tag"><span><b>${top.name}</b></span><span>${esc(it.src)} · ${S.i+1} / ${S.ids.length}</span></div><p class="q">${it.q}</p>${fig}${body}${ctrl}<div id="fb"></div></div>`;
+  window.scrollTo(0,0);
+  document.getElementById("back").onclick=home;
+  const enable=on=>{["sure","guess"].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=!on})};
+  const opts=[...app.querySelectorAll(".opt")];
+  if(it.type==="mc")opts.forEach(b=>b.onclick=()=>{opts.forEach(x=>{x.classList.remove("sel");x.setAttribute("aria-pressed","false")});b.classList.add("sel");b.setAttribute("aria-pressed","true");it._sel=+b.dataset.o;enable(true)});
+  if(it.type==="multi")opts.forEach(b=>b.onclick=()=>{b.classList.toggle("sel");b.setAttribute("aria-pressed",b.classList.contains("sel"));enable(app.querySelectorAll(".opt.sel").length>0)});
+  if(it.type==="num"||it.type==="text"){const a=document.getElementById("ans");a.oninput=()=>enable(a.value.trim()!=="");a.onkeydown=e=>{if(e.key==="Enter"&&a.value.trim())check(true)};a.focus()}
+  if(it.type==="order"){const draw=()=>{document.getElementById("seq").innerHTML=it._seq.map((o,k)=>`<span class="chip">${k+1}. ${it.items[o]}</span>`).join("");opts.forEach(b=>{b.disabled=it._seq.includes(+b.dataset.o)});enable(it._seq.length===it.items.length)};
+    opts.forEach(b=>b.onclick=()=>{it._seq.push(+b.dataset.o);draw()});document.getElementById("undo").onclick=()=>{it._seq.pop();draw()};draw()}
+  if(it.type==="open")document.getElementById("show").onclick=showModel;
+  else{document.getElementById("sure").onclick=()=>check(true);document.getElementById("guess").onclick=()=>check(false)}
+}
+function parseNum(s){s=s.trim().replace(/\s/g,"").replace(/−/g,"-").replace(/,/g,".").replace(/[×x·*]10\^?/i,"e").replace(/^\+/,"");if(!/^-?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s))return NaN;return parseFloat(s)}
+const normF=s=>s.trim().replace(/\s/g,"").replace(/−/g,"-").toUpperCase();
+function check(sure){
+  const it=byId[S.ids[S.i]];let r="w",note="";
+  const opts=[...app.querySelectorAll(".opt")];
+  if(it.type==="mc"){r=it._sel===it.a?"c":"w";opts.forEach(b=>{b.disabled=true;const o=+b.dataset.o;if(o===it.a)b.classList.add("right");else if(o===it._sel)b.classList.add("wrong")})}
+  if(it.type==="multi"){const sel=opts.filter(b=>b.classList.contains("sel")).map(b=>+b.dataset.o);const hit=sel.filter(o=>it.a.includes(o)).length,miss=it.a.length-hit,extra=sel.length-hit;
+    r=miss===0&&extra===0?"c":(hit>=Math.ceil(it.a.length/2)&&extra<=1?"p":"w");
+    opts.forEach(b=>{b.disabled=true;const o=+b.dataset.o,s=sel.includes(o),ok=it.a.includes(o);b.classList.remove("sel");if(s&&ok)b.classList.add("right");else if(s&&!ok)b.classList.add("wrong");else if(!s&&ok)b.classList.add("missed")});
+    if(r!=="c")note=`You found ${hit} of ${it.a.length}${extra?`, with ${extra} extra`:""}. Dashed boxes show the ones you missed. `}
+  if(it.type==="num"){const a=document.getElementById("ans"),v=parseNum(a.value);a.disabled=true;
+    if(isNaN(v)){r="w";note="That is not a number I can read. "}
+    else if(Math.abs(v-it.a)<=it.tol*1.0001)r="c";
+    else if(Math.abs(-v-it.a)<=it.tol*1.0001){r="p";note="Right size – check the sign. "}
+    else if([10,100,1000,0.1,0.01,0.001].some(f=>Math.abs(v*f-it.a)<=it.tol*1.0001)){r="p";note="Right digits, wrong power of ten – check your units. "}
+    else note=`Expected about ${fmt(it.a)} ${it.unit||""}. `}
+  if(it.type==="text"){const a=document.getElementById("ans");a.disabled=true;r=it.acc.map(normF).includes(normF(a.value))?"c":"w"}
+  if(it.type==="order"){const ok=it._seq.filter((o,k)=>o===k).length;r=ok===it.items.length?"c":(ok>=Math.ceil(it.items.length/2)?"p":"w");opts.forEach(b=>b.disabled=true);document.getElementById("undo").disabled=true;
+    if(r!=="c")note=`${ok} of ${it.items.length} steps are in the right place. Correct order: ${it.items.map((s,k)=>`${k+1}. ${s}`).join(" → ")}. `}
+  document.getElementById("conf").remove();
+  const head={c:sure?"Correct – and you knew it.":"Correct – but you were guessing. Read why, so it sticks.",p:"Partly right.",w:sure?"Not quite – and you felt sure. This could be a misconception.":"Not quite. Good that you flagged your doubt."}[r];
+  finish(r,sure,`<div class="fb ${r}"><strong>${head}</strong>${note}${it.e||""}</div>`);
+}
+const fmt=v=>Math.abs(v)<0.001?v.toExponential(2).replace("e"," × 10^"):String(v);
+function showModel(){
+  const it=byId[S.ids[S.i]];document.getElementById("conf").remove();
+  const fb=document.getElementById("fb");
+  fb.innerHTML=`<div class="fb m"><strong>Model answer</strong>${it.model}</div><div class="conf"><p>Compare with your answer. How did you do?</p><div class="row"><button class="main solid" data-r="c">I had it</button><button class="main ghost" data-r="p">Partly</button><button class="main ghost" data-r="w">Not yet</button></div></div>`;
+  fb.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{fb.querySelector(".conf").remove();finish(b.dataset.r,null,"")});
+}
+function finish(r,sure,html){
+  const id=S.ids[S.i],old=prog[id]||{n:0};prog[id]={r,s:sure,n:old.n+1};save();S.res[S.i]={r,sure};
+  const fb=document.getElementById("fb");fb.insertAdjacentHTML("beforeend",html+`<div class="next"><button class="main solid" id="nx">${S.i<S.ids.length-1?"Next question":"See my results"}</button></div>`);
+  const nx=document.getElementById("nx");nx.focus();nx.onclick=()=>{S.i++;S.i<S.ids.length?item():summary()};
+  const p=app.querySelector(".progress");if(p)p.outerHTML=bar();
+}
+function summary(){
+  const R=S.res,cnt=(f)=>R.filter(f).length;
+  const c=cnt(x=>x.r==="c"),auto=R.filter(x=>x.sure!==null);
+  const list=S.ids.map((id,k)=>({it:byId[id],r:R[k]})).filter(x=>x.r.r!=="c");
+  app.innerHTML=`<div class="top"><button class="link" id="back">← All topics</button><span class="muted">${esc(S.title)}</span></div>${bar()}
+  <h1>${c} / ${R.length}</h1><p class="muted">fully correct in this round</p>
+  ${auto.length?`<h3>What you know – and how sure you are</h3><div class="matrix">
+   <div class="cell good"><b>${cnt(x=>x.r==="c"&&x.sure===true)}</b>correct and sure: secure</div>
+   <div class="cell"><b>${cnt(x=>x.r==="c"&&x.sure===false)}</b>correct but guessed: firm this up</div>
+   <div class="cell alarm"><b>${cnt(x=>x.r!=="c"&&x.sure===true)}</b>wrong but sure: possible misconceptions</div>
+   <div class="cell"><b>${cnt(x=>x.r!=="c"&&x.sure===false)}</b>wrong and unsure: learn this</div></div>`:""}
+  ${list.length?`<h3>Look at these again</h3><ol class="list">${list.map(x=>`<li>${x.it.q}${x.r.sure===true?' <b style="color:var(--bad)">(you felt sure)</b>':""}</li>`).join("")}</ol>`:"<p>Everything correct – well done.</p>"}
+  <div class="row" style="margin-top:20px">${list.length?'<button class="main solid" id="again">Practise these again</button>':""}<button class="main ghost" id="home">Back to topics</button></div>`;
+  window.scrollTo(0,0);
+  document.getElementById("back").onclick=home;document.getElementById("home").onclick=home;
+  const a=document.getElementById("again");if(a)a.onclick=()=>start(shuffle(list.map(x=>x.it.id)),S.title+" (again)");
+}
+home();
+</script>
+</body>
+</html>
